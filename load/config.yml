@@ -1,0 +1,20 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 100
+    # - duration: 120
+    #   arrivalRate: 5
+    #   rampTo: 50
+    # - duration: 600
+    #   arrivalRate: 50
+scenarios:
+  - name: "Login"
+    flow:
+      - post:
+          url: "/v1"
+          json:
+            username: "axl"
+            unix_timestamp: 151475500
+            event_uuid: "85ad929a-db03-4bf4-9541-8f728fa12e485"
+            ip_address: "206.81.252.5"
