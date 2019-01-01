@@ -12,7 +12,7 @@ const speed_threshold = 500
 
 app.post('/v1', async (req, res) => {
     let response = {}
-    response['currentGeo'] = get_location(req.body.ip_address)
+    response['currentGeo'] = get_location(req.body.ip_address)    
     await insert(req.body, response['currentGeo'])
     response['precedingIpAccess'] = await get_access_details(req.body, 'previous')
     response['subsequentIpAccess'] = await get_access_details(req.body, 'subsequent')
@@ -27,7 +27,7 @@ app.listen(port)
 async function insert(payload, location) {
     try {
         const db = await dbPromise
-        let sql = 'insert into detector(username, event_uuid,ip_address, unix_timestamp, lat, lon, radius) values(?,?,?,?,?,?,?);'
+        let sql = 'insert into login_geo_location(username, event_uuid,ip_address, unix_timestamp, lat, lon, radius) values(?,?,?,?,?,?,?);'
         let values = [payload.username, payload.event_uuid, payload.ip_address, payload.unix_timestamp, location.lat, location.lon, location.radius]
         await db.get(sql, values)
     } catch (error) {
@@ -50,7 +50,7 @@ function get_speed(event1, event2) {
 
 function get_location(ip) {
     response = {}
-    location = lookup.get(ip)
+    location = lookup.get(ip).location    
     response['lat'] = location.latitude
     response['lon'] = location.longitude
     response['radius'] = location.accuracy_radius
@@ -69,7 +69,7 @@ async function query_db(sql, values) {
 
 async function get_access_details(payload, type) {
     let return_val = {}
-    let sql = `select ip_address, unix_timestamp, lat, lon, radius from detector where username=? and timestamp 
+    let sql = `select ip_address, unix_timestamp, lat, lon, radius from login_geo_location where username=? and unix_timestamp 
                 ${type == 'previous' ? '<' : '>'} ?  order by unix_timestamp 
                 ${type == 'previous' ? 'desc' : ''} limit 1`
     let values = [payload.username, payload.unix_timestamp]
